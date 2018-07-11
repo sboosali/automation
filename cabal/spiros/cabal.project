@@ -1,0 +1,31 @@
+----------------------------------------
+packages:
+
+  automation-signatures/
+
+  automation-for-x11*/
+
+  -- automation/
+
+----------------------------------------
+optional-packages:
+
+ ../spiros/
+
+ ../enumerate/enumerate
+ ../enumerate/enumerate-function
+
+----------------------------------------
+
+with-compiler:
+
+ /home/sboo/.nix-profile/bin/ghc
+               -- ^
+               -- path is expanded and absolute
+               -- (i.e. no "~/" or "./").
+
+ -- /home/sboo/.nix-profile/bin/ghc-8.6.0.20180627
+
+ -- /home/sboo/.nix-profile/bin/ghc-8.4.3
+
+----------------------------------------
