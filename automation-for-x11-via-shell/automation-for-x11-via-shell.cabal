@@ -3,7 +3,7 @@ cabal-version:       2.2
 
 ----------------------------------------
 
-name:                automation-signatures
+name:                automation-for-x11-via-shell
 version:             0.1
 
 -- x-revision:          0
@@ -16,7 +16,7 @@ description:         Simulation and Automation for: Keyboard, Mouse, Clipboard a
 build-type:          Simple
 
 license:             GPL-3.0-or-later
-license-file:        LICENSE.txt
+license-file:        ./documents/LICENSE.txt
 copyright:           2018 Spiros Boosalis
 
 author:              Spiros Boosalis
@@ -37,12 +37,12 @@ bug-reports:         http://github.com/sboosali/automation/issues
 source-repository head
   type:     git
   location: git://github.com/sboosali/automation.git
-  subdir:   automation-signatures
+  subdir:   automation-for-x11-via-shell
 
 -- source-repository this
 --   type:     git
 --   location: https://github.com/sboosali/automation/tree/v0.1
---   subdir:   automation-signatures
+--   subdir:   automation-for-x11-via-shell
 
 ----------------------------------------
 -- FLAGS
@@ -215,11 +215,14 @@ library
  hs-source-dirs:
    sources
 
- exposed-modules:
-  Automation.Keys
+ ------------------------------
+ ------------------------------
 
- other-modules:
-  Prelude.Automation
+ exposed-modules:
+  Automation.X11
+
+ -- other-modules:
+ --  Prelude.Automation
 
  ------------------------------
  ------------------------------
