@@ -213,14 +213,30 @@ library
  import: haskell2020
 
  hs-source-dirs:
-   sources
+  modules
+  signatures
 
  ------------------------------
  ------------------------------
  signatures:
 
   KEYBOARD
+  MOUSE
   CLIPBOARD
+
+  DESKTOP
+  DESKTOP.PROCESS 
+  DESKTOP.WINDOW
+  DESKTOP.APPLICATION
+  DESKTOP.WORKSPACE
+
+  VIDEO.SCREEN
+
+  AUDIO.SPEAKER
+  AUDIO.MICROPHONE
+
+  AUTOMATION.TEXT
+  AUTOMATION.STACK
 
   -- Automation.Keyboard
   -- Automation.Mouse

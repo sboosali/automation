@@ -1,10 +1,12 @@
-
 ----------------------------------------
+
 {-|
 
 -}
 
 signature KEYBOARD where
+
+import "base" Prelude (Bool)
 
 ----------------------------------------
 
@@ -16,7 +18,7 @@ data KeyboardM :: * -> *
 
 ----------------------------------------
 
-pressKey :: [Modifier] -> Key -> KeyboardM ()
+press :: [Modifier] -> Key -> KeyboardM Bool
 
 ----------------------------------------
 
