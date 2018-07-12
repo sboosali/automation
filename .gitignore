@@ -1,8 +1,10 @@
 # my
 ignore/ 
-temporary/ 
-TODO.txt
+temporary/
+
+# ghcid
 ghcid.txt
+ghcid-*.txt
 
 # Haskell
 .ghc.environment.*
