@@ -1,10 +1,9 @@
 # my
+.sboo/
 ignore/ 
 temporary/
 
 # ghcid
-ghcid.txt
-ghcid-*.txt
 
 # Haskell
 .ghc.environment.*
