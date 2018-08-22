@@ -1,9 +1,12 @@
 ----------------------------------------
 packages:
  ./automation-*/
+ ./xdotool/
 
 ----------------------------------------
 optional-packages:
  ../spiros
+ -- ../enumerate/enumerate
+ ../kbd/kbd
 
 ----------------------------------------

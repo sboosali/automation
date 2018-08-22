@@ -1,0 +1,245 @@
+cabal-version:       2.2
+                     -- for indefinite-modules and "common stanzas".
+
+----------------------------------------
+
+name:                xdotool
+version:             0.0
+
+-- x-revision:          0
+
+----------------------------------------
+
+synopsis: `xdotool`-program bindings
+
+description:
+            Shells out to @xdotool@, with richer types for all commands and all options.
+
+build-type:          Simple
+
+license:             GPL-3.0-or-later
+license-file:        LICENSE.txt
+copyright:           2018 Spiros Boosalis
+
+author:              Spiros Boosalis
+maintainer:          samboosalis@gmail.com
+
+category:            Accessibility
+stability:           provisional
+tested-with:
+            GHC == 8.4.3
+            -- `-XDerivingStrategies` requires GHC>=8.2
+--          , GHC == 8.6.2
+
+----------------------------------------
+-- (EXTRA) FILES
+----------------------------------------
+
+data-files:
+  data/*.txt
+
+extra-source-files:
+ LICENSE.txt
+ .gitignore
+ Makefile
+
+----------------------------------------
+-- REPOSITORY
+----------------------------------------
+
+homepage:            http://github.com/sboosali/automation#readme
+bug-reports:         http://github.com/sboosali/automation/issues
+
+source-repository head
+  type:     git
+  location: git://github.com/sboosali/automation.git
+  subdir:   xdotool
+
+-- source-repository this
+--   type:     git
+--   location: https://github.com/sboosali/automation/tree/v0.1
+--   subdir:   xdotool
+
+----------------------------------------
+-- FLAGS
+----------------------------------------
+
+-- flag ...
+--   default:     False
+--   description: Enable ...
+--   manual:      True
+
+----------------------------------------
+-- COMMON_STANZAS
+----------------------------------------
+common haskell2020
+
+ default-language:
+   Haskell2010
+
+ ------------------------------
+ ------------------------------
+
+ default-extensions:
+
+   --------------------
+   -- "controversial"
+   --------------------
+   NoImplicitPrelude
+   -- NOTE thus every module implicitly has -XNoImplicitPrelude
+   
+   --------------------
+   -- deriving
+   --------------------
+   AutoDeriveTypeable
+   DeriveDataTypeable
+   DeriveGeneric
+   DeriveFunctor
+   DeriveFoldable
+   DeriveTraversable
+   DeriveLift
+   StandaloneDeriving
+   DerivingStrategies
+   GeneralizedNewtypeDeriving
+   DeriveAnyClass
+
+   --------------------
+   -- syntax
+   --------------------
+   PackageImports
+   LambdaCase
+   EmptyCase
+   TypeOperators
+   PostfixOperators
+   BangPatterns
+   KindSignatures
+   NamedFieldPuns
+   RecordWildCards
+   TupleSections
+   MultiWayIf
+   DoAndIfThenElse
+   EmptyDataDecls
+   InstanceSigs
+   
+   --------------------
+   -- typeclasses
+   --------------------
+   MultiParamTypeClasses
+   FlexibleContexts
+   FlexibleInstances
+   TypeFamilies
+   FunctionalDependencies
+
+   --------------------
+   -- patterns
+   --------------------
+   ViewPatterns
+   PatternSynonyms
+
+   --------------------
+   -- (miscellaneous extensions)
+   --------------------
+   ScopedTypeVariables
+
+ other-extensions:
+
+   --------------------
+   -- macros
+   --------------------
+   TemplateHaskell
+   -- QuasiQuotes
+
+   --------------------
+   -- syntax (of literals)
+   --------------------
+   OverloadedStrings
+   OverloadedLists
+
+   --------------------
+   -- (miscellaneous extensions)
+   --------------------
+   -- RebindableSyntax
+   -- kinds
+   -- DataKinds ConstraintKinds
+   -- harmful to inference
+   -- GADTs RankNTypes
+   -- (miscellaneous)
+
+----------------------------------------
+-- LIBRARY
+----------------------------------------
+library
+
+ import: haskell2020
+
+ hs-source-dirs:
+  sources
+
+--TODO: signatures break repl.
+ -- signatures
+
+ ------------------------------
+ ------------------------------
+ exposed-modules:
+
+   Xdotool.Core
+   Xdotool.Commands.Key
+   Xdotool.Commands.Type
+   Xdotool.Commands.Search
+   Xdotool.Options.Global
+
+ other-modules:
+
+   Prelude_xdotool
+-- Paths_xdotool
+
+ ------------------------------
+ ------------------------------
+
+--TODO: signatures break repl.
+ -- signatures:
+ --  KEYBOARD
+
+ ------------------------------
+ ------------------------------
+ build-depends:
+
+   --------------------
+  -- boot-libraries & standard-library packages,
+  --------------------
+    base >=4.10 && <5
+  , text
+  , bytestring
+  , transformers
+  , mtl
+  , containers
+
+  --------------------
+  -- extended(/unofficial) "standard-library" packages.
+  --------------------
+  , deepseq
+  , hashable
+  , unordered-containers
+
+   --------------------
+   -- my libraries.
+   --------------------
+  , spiros
+  -- , enumerate
+  -- , enumerate-function
+  , kbd
+
+   --------------------
+   -- records libraries.
+   --------------------
+  , lens
+  , generic-lens
+  -- , vinyl
+
+   --------------------
+   -- (miscellaneous libraries).
+   --------------------
+
+----------------------------------------
+-- 
+----------------------------------------
