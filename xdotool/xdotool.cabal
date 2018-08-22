@@ -182,6 +182,7 @@ library
  ------------------------------
  exposed-modules:
 
+   Xdotool
    Xdotool.Core
    Xdotool.Commands.Key
    Xdotool.Commands.Type
@@ -189,7 +190,7 @@ library
    Xdotool.Options.Global
 
    Xdotool.Shell
-   
+
  other-modules:
 
    Prelude_xdotool

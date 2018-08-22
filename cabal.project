@@ -2,7 +2,8 @@
 packages:
  ./automation-*/
  ./xdotool/
-
+ -- ./uinput/
+ 
 ----------------------------------------
 optional-packages:
  ../spiros

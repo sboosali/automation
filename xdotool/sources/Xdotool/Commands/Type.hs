@@ -11,20 +11,29 @@ module Xdotool.Commands.Type where
 
 --------------------------------------------------
 
-import Prelude_xdotool
+import Xdotool.Core
+import Xdotool.Options.Global
 
 --------------------------------------------------
 
-
+import Prelude_xdotool
 
 --------------------------------------------------
 --------------------------------------------------
 
 {-| 
 
+Naming: @insert@ some text (@type@ is a Haskell keyword).
+
 -}
 
+insert' :: (MonadXdotool m) => GlobalOptions Maybe -> String -> m ()
+insert' options = \t -> do
+  _ <- xdotool' "type" options' [t]
+  nothing
 
+  where
+  options' = renderGlobalOptions options
 
 --------------------------------------------------
 
