@@ -188,6 +188,8 @@ library
    Xdotool.Commands.Search
    Xdotool.Options.Global
 
+   Xdotool.Shell
+   
  other-modules:
 
    Prelude_xdotool
@@ -204,7 +206,7 @@ library
  ------------------------------
  build-depends:
 
-   --------------------
+  --------------------
   -- boot-libraries & standard-library packages,
   --------------------
     base >=4.10 && <5
@@ -228,6 +230,12 @@ library
   -- , enumerate
   -- , enumerate-function
   , kbd
+
+   --------------------
+   -- shell/filesystem libraries.
+   --------------------
+  , process
+  , directory
 
    --------------------
    -- records libraries.
