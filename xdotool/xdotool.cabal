@@ -227,6 +227,7 @@ library
   , deepseq
   , hashable
   , unordered-containers
+  , data-default-class
 
    --------------------
    -- my libraries.

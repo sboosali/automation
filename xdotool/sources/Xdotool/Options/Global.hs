@@ -202,16 +202,20 @@ e.g.
 
 -}
 
-renderGlobalOptions :: GlobalOptions Maybe -> [String]
+renderGlobalOptions :: GlobalOptions Maybe -> [[String]]
 renderGlobalOptions = renderGlobalOptionsF > go
   where
-  go :: GlobalOptions (Const [String]) -> [String]
+  go :: GlobalOptions (Const [String]) -> [[String]]
   go GlobalOptions
      { window         = (Const sWindow)
      , delay          = (Const sDelay)
      , clearmodifiers = (Const sClearModifiers)
      }
-     = sWindow ++ sDelay ++ sClearModifiers
+     = -- concat
+     [ sWindow
+     , sDelay
+     , sClearModifiers
+     ]
 
 --------------------------------------------------
 
@@ -255,27 +259,24 @@ renderGlobalOptionsF GlobalOptions{ window=mWindow, delay=mDelay, clearmodifiers
 
 --------------------------------------------------
 
-{-| 
-
--}
+-- |
+--
 
 renderWindowOption :: WindowID -> [String]
 renderWindowOption (WindowID i) = ["--window" , show i]
 
 --------------------------------------------------
 
-{-| 
-
--}
+-- |
+--
 
 renderDelayOption :: Milliseconds -> [String]
 renderDelayOption (Milliseconds i) = ["--delay" , show i]
 
 --------------------------------------------------
 
-{-| 
-
--}
+-- |
+--
 
 renderClearModifiersOption :: ShouldClearModifiers -> [String]
 renderClearModifiersOption = \case

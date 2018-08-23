@@ -38,7 +38,7 @@ insert' options = \t -> do
   nothing
 
   where
-  options' = renderGlobalOptions options
+  options' = concat $ renderGlobalOptions options
 
 --------------------------------------------------
 

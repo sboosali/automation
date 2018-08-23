@@ -21,6 +21,8 @@ module Xdotool
  , module Xdotool.Options.Type
  , module Xdotool.Options.Search
 
+ , Default(..)
+
  ) where
 
 --------------------------------------------------
@@ -35,6 +37,10 @@ import Xdotool.Options.Global
 import Xdotool.Options.Key
 import Xdotool.Options.Type
 import Xdotool.Options.Search
+
+--------------------------------------------------
+
+import "data-default-class" Data.Default.Class as X (Default(..))
 
 --------------------------------------------------
 --------------------------------------------------

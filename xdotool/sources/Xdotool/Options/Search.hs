@@ -1,4 +1,5 @@
 {-# LANGUAGE DuplicateRecordFields #-}
+{-# LANGUAGE TypeApplications      #-}
 
 --------------------------------------------------
 --------------------------------------------------
@@ -23,73 +24,6 @@ WINDOW COMMANDS
            The default options are "--name --class --classname" (unless you specify one one or
            more of --name --class or --classname).
 
-           The options available are:
-
-           --class
-               Match against the window class.
-
-           --classname
-               Match against the window classname.
-
-           --maxdepth N
-               Set recursion/child search depth. Default is -1, meaning infinite. 0 means no
-               depth, only root windows will be searched. If you only want toplevel windows, set
-               maxdepth of 1 (or 2, depending on how your window manager does decorations).
-
-           --name
-               Match against the window name. This is the same string that is displayed in the
-               window titlebar.
-
-           --onlyvisible
-               Show only visible windows in the results. This means ones with map state
-               IsViewable.
-
-           --pid PID
-               Match windows that belong to a specific process id. This may not work for some X
-               applications that do not set this metadata on its windows.
-
-           --screen N
-               Select windows only on a specific screen. Default is to search all screens. Only
-               meaningful if you have multiple displays and are not using Xinerama.
-
-           --desktop N
-               Only match windows on a certain desktop. 'N' is a number. The default is to search
-               all desktops.
-
-           --limit N
-               Stop searching after finding N matching windows. Specifying a limit will help
-               speed up your search if you only want a few results.
-
-               The default is no search limit (which is equivalent to '--limit 0')
-
-           --title
-               DEPRECATED. See --name.
-
-           --all
-               Require that all conditions be met. For example:
-
-                xdotool search --all --pid 1424 --name "Hello World"
-
-               This will match only windows that have "Hello World" as a name and are owned by
-               pid 1424.
-
-           --any
-               Match windows that match any condition (logically, 'or'). This is on by default.
-               For example:
-
-                xdotool search --any --pid 1424 --name "Hello World"
-
-               This will match any windows owned by pid 1424 or windows with name "Hello World"
-
-           --sync
-               Block until there are results. This is useful when you are launching an
-               application want want to wait until the application window is visible.  For
-               example:
-
-                google-chrome &
-                xdotool search --sync --onlyvisible --class "google-chrome"
-
-       ...
 @
 
 -}
@@ -99,6 +33,11 @@ module Xdotool.Options.Search where
 --------------------------------------------------
 
 import Xdotool.Options.Global
+
+--------------------------------------------------
+
+import qualified "lens"         Control.Lens          as L
+import qualified "generic-lens" Data.Generics.Product as L
 
 --------------------------------------------------
 
@@ -242,6 +181,7 @@ data SearchOptions f = SearchOptions
   { window         :: f WindowID
   , delay          :: f Milliseconds
   , clearmodifiers :: f ShouldClearModifiers
+  
   , sync           :: f WhetherSynchronous
 
   , screen         :: f WhichScreenToSearch
@@ -340,8 +280,8 @@ Corresponding @xdotool@ options:
 * 'wmName'
           @
            --name
-               Match against the window name. This is the same string that is displayed in the
-               window titlebar.
+               Match against the window name.
+               This is the same string that is displayed in the window titlebar.
           @
 
 -}
@@ -471,7 +411,7 @@ newtype ProcessID = ProcessID
   Int
 
   deriving stock    (Show,Read,Lift,Generic)
-  -- deriving newtype  (Num)
+  deriving newtype  (Num)
   deriving newtype  (Eq,Ord)
   deriving newtype  (NFData,Hashable)
 
@@ -486,7 +426,7 @@ newtype ScreenID = ScreenID
   Int
 
   deriving stock    (Show,Read,Lift,Generic)
-  -- deriving newtype  (Num)
+  deriving newtype  (Num)
   deriving newtype  (Eq,Ord)
   deriving newtype  (NFData,Hashable)
 
@@ -501,7 +441,7 @@ newtype DesktopID = DesktopID
   Int
 
   deriving stock    (Show,Read,Lift,Generic)
-  -- deriving newtype  (Num)
+  deriving newtype  (Num)
   deriving newtype  (Eq,Ord)
   deriving newtype  (NFData,Hashable)
 
@@ -594,7 +534,7 @@ data WhetherSynchronous
 data Visibility
 
   = OnlyVisible
-  | InvisibleToo
+  | AlsoInvisible
 
   deriving stock    (Enum,Bounded,Ix)
   deriving stock    (Show,Read,Eq,Ord,Lift,Generic)
@@ -602,9 +542,6 @@ data Visibility
   deriving anyclass (NFData,Hashable)
 
 --------------------------------------------------
---------------------------------------------------
-
-
 --------------------------------------------------
 
 queryName :: String -> QueryOptions Maybe
@@ -615,6 +552,194 @@ queryClass s = def{ wmClass = Just s }
 
 queryClassName :: String -> QueryOptions Maybe
 queryClassName s = def{ wmClassName = Just s }
+
+--------------------------------------------------
+--------------------------------------------------
+
+{-|
+
+e.g.
+
+@
+$ xprop
+...
+WM_CLASS(STRING) = "_emacs-wrapped", "Emacs"
+WM_NAME(STRING) = "Emacs — Xdotool.hs"
+
+$ make repl
+Xdotool> let os = renderSearchOptions SearchOptions{ window = Just 94371868, delay = Just 100, clearmodifiers = Just ClearModifiers, query = QueryOptions { wmName = Just "Emacs", wmClass = Just "Emacs", wmClassName = Just "" }, sync = Just Synchronous, connective = Just AllConditions, pid = Just 998, screen = Just (SearchScreen 2), desktop = Just (SearchDesktop 5), maxdepth = Just OnlySearchTopLevelWindows2, limit = Just (LimitedSearch 10), onlyvisible = Just OnlyVisible }
+Xdotool> import Data.List
+Xdotool> putStrLn (intercalate " " (concat os))
+--all --class Emacs --clearmodifiers --delay 100 --desktop 5 --limit 10 --maxdepth 2 --name Emacs --onlyvisible --pid 998 --screen 2 --sync --window 94371868
+Xdotool> 
+@
+
+@doctest@s:
+
+>>> renderSearchOptions SearchOptions{ window = Just 94371868, delay = Just 100, clearmodifiers = Just ClearModifiers, query = QueryOptions { wmName = Just "Emacs", wmClass = Just "Emacs", wmClassName = Just "" }, sync = Just Synchronous, connective = Just AllConditions, pid = Just 998, screen = Just (SearchScreen 2), desktop = Just (SearchDesktop 5), maxdepth = Just OnlySearchTopLevelWindows2, limit = Just (LimitedSearch 10), onlyvisible = Just OnlyVisible }
+[["--all"],["--class","Emacs"],["--clearmodifiers"],["--delay","100"],["--desktop","5"],["--limit","10"],["--maxdepth","2"],["--name","Emacs"],["--onlyvisible"],["--pid","998"],["--screen","2"],["--sync"],["--window","94371868"]]
+
+-}
+
+renderSearchOptions :: SearchOptions Maybe -> [[String]]
+renderSearchOptions options = go searchOptions
+
+  where
+  go = filter (/= []) > sort
+  
+  searchOptions = globalOptions ++ searchOnlyOptions
+
+  globalOptions
+    = renderGlobalOptions (options L.^. L.super @(GlobalOptions Maybe))
+
+  searchOnlyOptions
+    = options
+    & renderSearchOnlyOptions
+
+  --notes--
+  --   & L.super @GlobalOptions L.%~ renderGlobalOptions
+
+--------------------------------------------------
+
+{-|
+
+-}
+
+renderSearchOnlyOptions
+ :: SearchOptions Maybe -> [[String]]
+renderSearchOnlyOptions SearchOptions{..} =
+
+  renderQueryOptions query
+  
+  ++
+  
+  [ sync         & maybe [] (\case
+      Synchronous                 -> ["--sync"]
+      Asynchronous                -> []
+                            )
+
+  , connective   & maybe [] (\case
+      AnyCondition                -> ["--any"]
+      AllConditions               -> ["--all"]
+                            )
+
+  , pid          & maybe [] (\case
+      ProcessID i                 -> [ "--pid", show i ]
+                            )
+
+  , screen       & maybe [] (\case
+      SearchAllScreens            -> []
+      SearchScreen (ScreenID i)   -> [ "--screen", show i ]
+                            )
+
+  , desktop      & maybe [] (\case
+      SearchAllDesktops           -> []
+      SearchDesktop (DesktopID i) -> [ "--desktop", show i ]
+                            )
+
+  , maxdepth     & maybe [] (\case
+      UnboundedSearchDepth        -> [ "--maxdepth",   "-1" ]
+      BoundedSearchDepth i        -> [ "--maxdepth", show i ]
+                            )
+
+  , limit        & maybe [] (\case
+      UnlimitedSearch             -> [ "--limit",    "0" ]
+      LimitedSearch i             -> [ "--limit", show i ]
+                            )
+
+  , onlyvisible  & maybe [] (\case
+      OnlyVisible                 -> ["--onlyvisible"]
+      AlsoInvisible               -> []
+                            )
+
+  ]
+
+  -- , sync           :: f WhetherSynchronous
+  -- , screen         :: f WhichScreenToSearch
+  -- , desktop        :: f WhichDesktopToSearch
+  -- , connective     :: f LogicalConnective
+  -- , maxdepth       :: f MaxSearchDepth
+  -- , limit          :: f SearchLimit
+  -- , onlyvisible    :: f Visibility
+  -- , pid            :: f ProcessID
+  -- , query          :: QueryOptions f
+
+--------------------------------------------------
+--------------------------------------------------
+
+{-|
+
+-}
+
+renderQueryOptions :: QueryOptions Maybe -> [[String]]
+renderQueryOptions = renderQueryOptionsF > cmdlnQueryOptions
+
+--------------------------------------------------
+
+{-|
+
+-}
+
+cmdlnQueryOptions :: QueryOptions (Const [String]) -> [[String]]
+cmdlnQueryOptions QueryOptions
+  { wmName      = Const wmName
+  , wmClass     = Const wmClass
+  , wmClassName = Const wmClassName
+  }
+
+  = -- concat
+    [ wmName
+    , wmClass
+    , wmClassName
+    ]
+
+--------------------------------------------------
+
+{-|
+
+-}
+
+renderQueryOptionsF :: QueryOptions Maybe -> QueryOptions (Const [String])
+renderQueryOptionsF QueryOptions{..} =
+  QueryOptions
+    { wmName      = Const wmName'
+    , wmClass     = Const wmClass'
+    , wmClassName = Const wmClassName'
+    }
+  where
+  wmName'         = wmName      & maybe [] renderWMNameOption
+  wmClass'        = wmClass     & maybe [] renderWMClassOption
+  wmClassName'    = wmClassName & maybe [] renderWMClassNameOption
+
+--------------------------------------------------
+
+-- |
+--
+
+renderWMNameOption :: String -> [String]
+renderWMNameOption = \case
+  "" -> []
+  t  -> ["--name", t]
+
+--------------------------------------------------
+
+-- |
+--
+
+renderWMClassOption :: String -> [String]
+renderWMClassOption = \case
+  "" -> []
+  t  -> ["--class", t]
+
+--------------------------------------------------
+
+-- |
+--
+
+renderWMClassNameOption :: String -> [String]
+renderWMClassNameOption = \case
+  "" -> []
+  t  -> ["--classname", t]
 
 --------------------------------------------------
 {- Notes -----------------------------------------
