@@ -1,3 +1,5 @@
+{-# LANGUAGE DuplicateRecordFields #-}
+
 --------------------------------------------------
 --------------------------------------------------
 
@@ -23,12 +25,6 @@ import Prelude_xdotool
 
 {-| 
 
--}
-
---------------------------------------------------
-
-{-| 
-
 Specializations:
 
 * @(GlobalOptions 'Maybe')@: if a field is 'Nothing', don't pass its corresponding command-line option (i.e. use @xdotool@'s implicit default). See @$ man xdotool@.
@@ -42,6 +38,14 @@ data GlobalOptions f = GlobalOptions
   , clearmodifiers :: f ShouldClearModifiers
   }
   deriving stock    (Generic)
+
+--------------------------------------------------
+
+-- | @= 'defaultGlobalOptions'@
+instance Default (GlobalOptions Maybe) where
+  def = defaultGlobalOptions
+
+--------------------------------------------------
 
 instance (Show1 f) => Show (GlobalOptions f) where
 
@@ -95,10 +99,6 @@ instance (Show1 f) => Show (GlobalOptions f) where
   -- `showString :: String -> ShowS`
   -- 
   -- 
-
--- | @= 'defaultGlobalOptions'@
-instance Default (GlobalOptions Maybe) where
-  def = defaultGlobalOptions
 
 --------------------------------------------------
 

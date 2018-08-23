@@ -184,12 +184,16 @@ library
 
    Xdotool
    Xdotool.Core
+   Xdotool.Shell
+
    Xdotool.Commands.Key
    Xdotool.Commands.Type
    Xdotool.Commands.Search
-   Xdotool.Options.Global
 
-   Xdotool.Shell
+   Xdotool.Options.Global
+   Xdotool.Options.Search
+   Xdotool.Options.Key
+   Xdotool.Options.Type
 
  other-modules:
 

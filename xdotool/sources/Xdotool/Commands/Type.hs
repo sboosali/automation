@@ -3,8 +3,6 @@
 
 {-|
 
-
-
 -}
 
 module Xdotool.Commands.Type where
@@ -21,7 +19,14 @@ import Prelude_xdotool
 --------------------------------------------------
 --------------------------------------------------
 
-{-| 
+{-|
+
+e.g.
+
+@
+insert' defaultGlobalOptions "$hello, `world`"
+@
+
 
 Naming: @insert@ some text (@type@ is a Haskell keyword).
 
