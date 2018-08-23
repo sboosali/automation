@@ -24,21 +24,20 @@ import Prelude_xdotool
 e.g.
 
 @
-insert' defaultGlobalOptions "$hello, `world`"
+insert defaultGlobalOptions "$hello, `world`"
 @
-
 
 Naming: @insert@ some text (@type@ is a Haskell keyword).
 
 -}
 
-insert' :: (MonadXdotool m) => GlobalOptions Maybe -> String -> m ()
-insert' options = \t -> do
-  _ <- xdotool' "type" options' [t]
-  nothing
+insert :: (MonadXdotool m) => GlobalOptions Maybe -> String -> m ()
+insert options = \t -> do
+  
+  xdotool_ "type" os [t]
 
   where
-  options' = concat $ renderGlobalOptions options
+  os = concat (renderSearchOptions options)
 
 --------------------------------------------------
 

@@ -11,7 +11,8 @@ module Xdotool.Commands.Key where
 
 --------------------------------------------------
 
-import Xdotool.Shell
+import Xdotool.Core
+import Xdotool.Options.Key
 
 --------------------------------------------------
 

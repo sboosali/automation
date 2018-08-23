@@ -56,16 +56,20 @@ $ xdotool type --clearmodifiers --delay 100 '$hello, ' '*world*'
 
 -}
 
-xdotool' :: (MonadXdotool m) => String -> [String] -> [String] -> m ()
-xdotool' command options arguments = do
-  _ <- executeM "xdotool" ([command] ++ options ++ arguments)
-  nothing
+xdotool :: (MonadXdotool m) => String -> [String] -> [String] -> m String
+xdotool command options arguments = do
+  executeM "xdotool" ([command] ++ options ++ arguments)
 
 --------------------------------------------------
 
-{-| 
+{-| 'xdotool' with @stdout@ ignored.
 
 -}
+
+xdotool_ :: (MonadXdotool m) => String -> [String] -> [String] -> m ()
+xdotool_ command options arguments = do
+  _ <- xdotool command options arguments
+  nothing
 
 --------------------------------------------------
 
