@@ -3,7 +3,9 @@
 
 {-|
 
-
+@
+xdotool search [<option> ...] <regex>
+@
 
 -}
 
@@ -43,10 +45,10 @@ Xdotool> Prelude.putStrLn visibleEmacsWindows
 
 -}
 
-search :: (MonadXdotool m) => SearchOptions Maybe -> m String
-search options = do
+search :: (MonadXdotool m) => SearchOptions Maybe -> String -> m String
+search options = \t -> do
   
-  xdotool "search" os []
+  xdotool "search" os [t]
 
   where
   os = concat (renderSearchOptions options)

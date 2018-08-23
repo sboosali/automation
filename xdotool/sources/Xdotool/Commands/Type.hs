@@ -37,7 +37,7 @@ insert options = \t -> do
   xdotool_ "type" os [t]
 
   where
-  os = concat (renderSearchOptions options)
+  os = concat (renderGlobalOptions options)
 
 --------------------------------------------------
 

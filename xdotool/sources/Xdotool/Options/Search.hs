@@ -41,6 +41,10 @@ import qualified "generic-lens" Data.Generics.Product as L
 
 --------------------------------------------------
 
+import qualified "containers" Data.Set as Set
+
+--------------------------------------------------
+
 import "base" Text.Show
 import "base" Data.Functor.Classes
 
@@ -49,41 +53,6 @@ import "base" Data.Functor.Classes
 import Prelude_xdotool
 
 --------------------------------------------------
---------------------------------------------------
-
-{-
-
-{-| @xdotool type ...@ has no command-specific options.
-
--}
-
-type TypeOptions = GlobalOptions
-
---------------------------------------------------
-
-{-| @xdotool key ...@ has no command-specific options.
-
--}
-
-type KeyOptions = GlobalOptions
-
---------------------------------------------------
-
-{-| @xdotool keyup ...@ has no command-specific options.
-
--}
-
-type KeyUpOptions = GlobalOptions
-
---------------------------------------------------
-
-{-| @xdotool keydown ...@ has no command-specific options.
-
--}
-
-type KeyDownOptions = GlobalOptions
--}
-
 --------------------------------------------------
 
 {-|
@@ -171,7 +140,6 @@ as well as the global options shared among all @xdotool@ commands.
 Also see:
 
 * 'GlobalOptions'
-* 'QueryOptions'
 
 -}
 
@@ -181,21 +149,19 @@ data SearchOptions f = SearchOptions
   { window         :: f WindowID
   , delay          :: f Milliseconds
   , clearmodifiers :: f ShouldClearModifiers
-  
   , sync           :: f WhetherSynchronous
-
-  , screen         :: f WhichScreenToSearch
-  , desktop        :: f WhichDesktopToSearch
 
   -- search options
   , connective     :: f LogicalConnective
   , maxdepth       :: f MaxSearchDepth
   , limit          :: f SearchLimit
+  , screen         :: f WhichScreenToSearch
+  , desktop        :: f WhichDesktopToSearch
 
   -- window options
   , onlyvisible    :: f Visibility
   , pid            :: f ProcessID
-  , query          :: QueryOptions f
+  , properties     :: f WhichWindowProperties
   }
   
   deriving stock    (Generic)
@@ -231,7 +197,7 @@ instance (Show1 f) => Show (SearchOptions f) where
         , showString ", limit = ",          showsSubPrec1 limit
         , showString ", onlyvisible = ",    showsSubPrec1 onlyvisible
         , showString ", pid = ",            showsSubPrec1 pid
-        , showString ", query = ",          showsSubPrec  query
+        , showString ", properties = ",     showsSubPrec1 properties
         , showString " }"
         ]
 
@@ -257,78 +223,20 @@ instance (Show1 f) => Show (SearchOptions f) where
 
 {-|
 
-Fields:
-
-* 'wmName': @name@.
-* 'wmClass': @class@.
-* 'wmClassName': @classname@.
-
-Corresponding @xdotool@ options:
-
-* 'wmClass'
-          @
-           --class
-               Match against the window class.
-          @
-
-* 'wmClassName'
-          @
-           --classname
-               Match against the window classname.
-          @
-
-* 'wmName'
-          @
-           --name
-               Match against the window name.
-               This is the same string that is displayed in the window titlebar.
-          @
-
--}
-
-data QueryOptions f = QueryOptions
-  { wmName      :: f String
-  , wmClass     :: f String
-  , wmClassName :: f String
-  }
-
-  deriving stock    (Generic)
-
-  -- deriving stock    (Show,Read,Eq,Ord,Lift,Generic)
-  -- deriving anyclass (NFData,Hashable)
-
---------------------------------------------------
-
--- | @= 'defaultQueryOptions'@
-instance Default (QueryOptions Maybe) where
-  def = defaultQueryOptions
-
---------------------------------------------------
-
--- | 
-instance (Show1 f) => Show (QueryOptions f) where
-
-  showsPrec :: Int -> (QueryOptions f) -> (String -> String)
-  -- showsPrec :: Int -> a -> ShowS
-  showsPrec precedence QueryOptions{..} =
-    showAlphanumericConstructor precedence
-      [ showString "QueryOptions "
-      , showString "{ wmName = ",      showsSubPrec1 wmName
-      , showString ", wmClass = ",     showsSubPrec1 wmClass
-      , showString ", wmClassName = ", showsSubPrec1 wmClassName
-      , showString " }"
-      ]
-
---------------------------------------------------
---------------------------------------------------
-
-{-|
-
 Represents no options passed:
 
 * 'window'         = 'Nothing': by default, @xdotool@ sends events to the current window.
 * 'delay'          = 'Nothing': by default, @xdotool@ interperses a @12ms@ delay between each event.
 * 'clearmodifiers' = 'Nothing': by default, @xdotool@ does *not* clear modifiers.
+* 'sync'           = 'Nothing': by default, @xdotool@ ...
+* 'screen'         = 'Nothing': by default, @xdotool@ ...
+* 'desktop'        = 'Nothing': by default, @xdotool@ ...
+* 'connective'     = 'Nothing': by default, @xdotool@ ...
+* 'maxdepth'       = 'Nothing': by default, @xdotool@ ...
+* 'limit'          = 'Nothing': by default, @xdotool@ ...
+* 'onlyvisible'    = 'Nothing': by default, @xdotool@ ...
+* 'pid'            = 'Nothing': by default, @xdotool@ ...
+* 'properties'     = 'Nothing': by default, @xdotool@ ...
 
 -}
 
@@ -348,29 +256,74 @@ defaultSearchOptions = SearchOptions{..}
   limit          = Nothing
   onlyvisible    = Nothing
   pid            = Nothing
-
-  query          = def
+  properties     = Nothing
 
 --------------------------------------------------
 
 {-|
 
-Represents no options passed:
-
-* 'wmName'     = 'Nothing'
-* 'wmClass'     = 'Nothing'
-* 'wmClassName' = 'Nothing'
-
-By default, nothing is matched. Specify at least one field (i.e. set it to @'Just' "..."@).
 
 -}
 
-defaultQueryOptions :: QueryOptions Maybe
-defaultQueryOptions = QueryOptions{..}
+newtype WhichWindowProperties = WhichWindowProperties
+
+  [WindowProperty]
+
+  deriving stock    (Show,Read,Lift,Generic)
+  deriving newtype  (Eq,Ord,Semigroup,Monoid)
+  deriving newtype  (NFData,Hashable)
+
+-- | 'fromList' dedups and sorts.
+instance IsList WhichWindowProperties where
+  type Item WhichWindowProperties = WindowProperty
+  fromList = coerce > normalizeWindowProperties
+  toList   = coerce
+
+--------------------------------------------------
+
+normalizeWindowProperties :: WhichWindowProperties -> WhichWindowProperties
+normalizeWindowProperties (WhichWindowProperties props)
+  = WhichWindowProperties (go props)
   where
-  wmName      = Nothing
-  wmClass     = Nothing
-  wmClassName = Nothing
+  go = Set.fromList > Set.toList > sort
+
+--------------------------------------------------
+
+{-|
+
+Corresponding @xdotool@ options:
+
+* 'WindowClass'
+          @
+           --class
+               Match against the window class.
+          @
+
+* 'WindowClassName'
+          @
+           --classname
+               Match against the window classname.
+          @
+
+* 'WindowName'
+          @
+           --name
+               Match against the window name.
+               This is the same string that is displayed in the window titlebar.
+          @
+
+-}
+
+data WindowProperty
+
+  = WindowClass
+  | WindowName
+  | WindowClassName
+
+  deriving stock    (Enum,Bounded,Ix)
+  deriving stock    (Show,Read,Eq,Ord,Lift,Generic)
+  --deriving anyclass (Enumerable)
+  deriving anyclass (NFData,Hashable)
 
 --------------------------------------------------
 
@@ -544,18 +497,6 @@ data Visibility
 --------------------------------------------------
 --------------------------------------------------
 
-queryName :: String -> QueryOptions Maybe
-queryName s = def{ wmName = Just s }
-
-queryClass :: String -> QueryOptions Maybe
-queryClass s = def{ wmClass = Just s }
-
-queryClassName :: String -> QueryOptions Maybe
-queryClassName s = def{ wmClassName = Just s }
-
---------------------------------------------------
---------------------------------------------------
-
 {-|
 
 e.g.
@@ -567,17 +508,35 @@ WM_CLASS(STRING) = "_emacs-wrapped", "Emacs"
 WM_NAME(STRING) = "Emacs — Xdotool.hs"
 
 $ make repl
-Xdotool> let os = renderSearchOptions SearchOptions{ window = Just 94371868, delay = Just 100, clearmodifiers = Just ClearModifiers, query = QueryOptions { wmName = Just "Emacs", wmClass = Just "Emacs", wmClassName = Just "" }, sync = Just Synchronous, connective = Just AllConditions, pid = Just 998, screen = Just (SearchScreen 2), desktop = Just (SearchDesktop 5), maxdepth = Just OnlySearchTopLevelWindows2, limit = Just (LimitedSearch 10), onlyvisible = Just OnlyVisible }
-Xdotool> import Data.List
-Xdotool> putStrLn (intercalate " " (concat os))
---all --class Emacs --clearmodifiers --delay 100 --desktop 5 --limit 10 --maxdepth 2 --name Emacs --onlyvisible --pid 998 --screen 2 --sync --window 94371868
-Xdotool> 
+
+Xdotool> :set -XOverloadedLists
+
+Xdotool> let os = renderSearchOptions SearchOptions{ properties = Prelude.Just [ WindowClass, WindowClassName ], window = Prelude.Just 94371868, delay = Prelude.Just 100, clearmodifiers = Prelude.Just ClearModifiers, sync = Prelude.Just Synchronous, connective = Prelude.Just AllConditions, pid = Prelude.Just 998, screen = Prelude.Just (SearchScreen 2), desktop = Prelude.Just (SearchDesktop 5), maxdepth = Prelude.Just OnlySearchTopLevelWindows2, limit = Prelude.Just (LimitedSearch 10), onlyvisible = Prelude.Just OnlyVisible }
+
+Xdotool> Prelude.putStrLn (Data.List.intercalate " " (Data.List.concat os))
+--all --class --classname --clearmodifiers --delay 100 --desktop 5 --limit 10 --maxdepth 2 --onlyvisible --pid 998 --screen 2 --sync --window 94371868
+
+Xdotool> Prelude.putStrLn `Data.Foldable.traverse_` (Data.List.intercalate " " `Prelude.fmap` os)
+--all
+--class --classname
+--clearmodifiers
+--delay 100
+--desktop 5
+--limit 10
+--maxdepth 2
+--onlyvisible
+--pid 998
+--screen 2
+--sync
+--window 94371868
+
 @
 
 @doctest@s:
 
->>> renderSearchOptions SearchOptions{ window = Just 94371868, delay = Just 100, clearmodifiers = Just ClearModifiers, query = QueryOptions { wmName = Just "Emacs", wmClass = Just "Emacs", wmClassName = Just "" }, sync = Just Synchronous, connective = Just AllConditions, pid = Just 998, screen = Just (SearchScreen 2), desktop = Just (SearchDesktop 5), maxdepth = Just OnlySearchTopLevelWindows2, limit = Just (LimitedSearch 10), onlyvisible = Just OnlyVisible }
-[["--all"],["--class","Emacs"],["--clearmodifiers"],["--delay","100"],["--desktop","5"],["--limit","10"],["--maxdepth","2"],["--name","Emacs"],["--onlyvisible"],["--pid","998"],["--screen","2"],["--sync"],["--window","94371868"]]
+>>> :set -XOverloadedLists
+>>> renderSearchOptions SearchOptions{ properties = Prelude.Just [ WindowClass, WindowClassName ], window = Prelude.Just 94371868, delay = Prelude.Just 100, clearmodifiers = Prelude.Just ClearModifiers, sync = Prelude.Just Synchronous, connective = Prelude.Just AllConditions, pid = Prelude.Just 998, screen = Prelude.Just (SearchScreen 2), desktop = Prelude.Just (SearchDesktop 5), maxdepth = Prelude.Just OnlySearchTopLevelWindows2, limit = Prelude.Just (LimitedSearch 10), onlyvisible = Prelude.Just OnlyVisible }
+[["--all"],["--class","--classname"],["--clearmodifiers"],["--delay","100"],["--desktop","5"],["--limit","10"],["--maxdepth","2"],["--onlyvisible"],["--pid","998"],["--screen","2"],["--sync"],["--window","94371868"]]
 
 -}
 
@@ -608,10 +567,6 @@ renderSearchOptions options = go searchOptions
 renderSearchOnlyOptions
  :: SearchOptions Maybe -> [[String]]
 renderSearchOnlyOptions SearchOptions{..} =
-
-  renderQueryOptions query
-  
-  ++
   
   [ sync         & maybe [] (\case
       Synchronous                 -> ["--sync"]
@@ -652,74 +607,29 @@ renderSearchOnlyOptions SearchOptions{..} =
       AlsoInvisible               -> []
                             )
 
+  , properties   & maybe [] renderWindowPropertiesOptions
+  
   ]
-
-  -- , sync           :: f WhetherSynchronous
-  -- , screen         :: f WhichScreenToSearch
-  -- , desktop        :: f WhichDesktopToSearch
-  -- , connective     :: f LogicalConnective
-  -- , maxdepth       :: f MaxSearchDepth
-  -- , limit          :: f SearchLimit
-  -- , onlyvisible    :: f Visibility
-  -- , pid            :: f ProcessID
-  -- , query          :: QueryOptions f
-
---------------------------------------------------
---------------------------------------------------
-
-{-|
-
--}
-
-renderQueryOptions :: QueryOptions Maybe -> [[String]]
-renderQueryOptions = renderQueryOptionsF > cmdlnQueryOptions
-
---------------------------------------------------
-
-{-|
-
--}
-
-cmdlnQueryOptions :: QueryOptions (Const [String]) -> [[String]]
-cmdlnQueryOptions QueryOptions
-  { wmName      = Const wmName
-  , wmClass     = Const wmClass
-  , wmClassName = Const wmClassName
-  }
-
-  = -- concat
-    [ wmName
-    , wmClass
-    , wmClassName
-    ]
-
---------------------------------------------------
-
-{-|
-
--}
-
-renderQueryOptionsF :: QueryOptions Maybe -> QueryOptions (Const [String])
-renderQueryOptionsF QueryOptions{..} =
-  QueryOptions
-    { wmName      = Const wmName'
-    , wmClass     = Const wmClass'
-    , wmClassName = Const wmClassName'
-    }
-  where
-  wmName'         = wmName      & maybe [] renderWMNameOption
-  wmClass'        = wmClass     & maybe [] renderWMClassOption
-  wmClassName'    = wmClassName & maybe [] renderWMClassNameOption
 
 --------------------------------------------------
 
 -- |
 --
 
-renderWMNameOption :: String -> [String]
-renderWMNameOption = \case
-  "" -> []
-  t  -> ["--name", t]
+renderWindowPropertiesOptions :: WhichWindowProperties -> [String]
+renderWindowPropertiesOptions = normalizeWindowProperties > go
+  where
+  go (WhichWindowProperties props) =
+    renderWindowPropertyOption <$> props
+
+-- |
+--
+
+renderWindowPropertyOption :: WindowProperty -> String
+renderWindowPropertyOption = \case
+  WindowClass     -> "--class"
+  WindowName      -> "--name"
+  WindowClassName -> "--classname"
 
 --------------------------------------------------
 
