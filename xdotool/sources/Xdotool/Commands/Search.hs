@@ -40,7 +40,6 @@ Xdotool> Prelude.putStrLn runningEmacsWindows
 Xdotool> visibleEmacsWindows <- search defaultSearchOptions { query = queryClass "Emacs", onlyvisible = Prelude.Just 'OnlyVisible' }
 Xdotool> Prelude.putStrLn visibleEmacsWindows
 94371868
-
 @
 
 -}

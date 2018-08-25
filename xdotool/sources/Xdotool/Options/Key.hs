@@ -105,4 +105,17 @@ type KeyUpOptions = GlobalOptions
 type KeyDownOptions = GlobalOptions
 
 --------------------------------------------------
+
+{-| 
+
+@
+= 'renderGlobalOptions'
+@
+
+-}
+
+renderKeyOptions :: KeyOptions Maybe -> [[String]]
+renderKeyOptions = renderGlobalOptions
+
+--------------------------------------------------
 --------------------------------------------------
