@@ -15,7 +15,7 @@ module Xdotool
  , module Xdotool.Commands.Key
  , module Xdotool.Commands.Type
  , module Xdotool.Commands.Search
- 
+
  , module Xdotool.Options.Global
  , module Xdotool.Options.Key
  , module Xdotool.Options.Type
@@ -43,4 +43,4 @@ import Xdotool.Options.Search
 import "data-default-class" Data.Default.Class as X (Default(..))
 
 --------------------------------------------------
---------------------------------------------------
+--------------------------------------------------λ> 

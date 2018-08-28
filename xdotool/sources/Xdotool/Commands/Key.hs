@@ -13,6 +13,7 @@ module Xdotool.Commands.Key where
 
 --------------------------------------------------
 
+import Xdotool.KeySymbol
 import Xdotool.Core
 import Xdotool.Options.Key
 
@@ -29,19 +30,33 @@ e.g.
 
 @
 import qualified Xdotool as X
+
 :set -XOverloadedStrings
-X.key X.def "alt-Tab"
+X.key X.def ["alt+Tab"]
+
+:set -XDuplicateRecordFields
+X.key X.def{ delay = 1000, clearmodifiers = Just ClearModifiers } ["ctrl+a", "alt+f"]
 @
+
+should be equivalent to:
+
+@
+$ xdotool key --delay 1000 'ctrl+a' 'alt+f'
+@
+
+helm-boring-buffer-regexp-list
 
 -}
 
-key :: (MonadXdotool m) => KeyOptions Maybe -> KeySymbol -> m ()
-key options = \(KeySymbol t) -> do
+key :: (MonadXdotool m) => KeyOptions Maybe -> [KeySymbol] -> m ()
+key options = \keysyms -> do
   
-  xdotool_ "key" os [t]
+  let args = coerce <$> keysyms
+  
+  xdotool_ "key" opts args
 
   where
-  os = concat (renderKeyOptions options)
+  opts = concat (renderKeyOptions options)
 
 ----
 
@@ -50,23 +65,6 @@ key options = \(KeySymbol t) -> do
 {-| 
 
 -}
-
---------------------------------------------------
-
-{-|
-
--}
-
-newtype KeySymbol = KeySymbol
-
-  String
-
-  deriving stock    (Show,Read,Lift,Generic)
-  deriving newtype  (Eq,Ord,Semigroup,Monoid)
-  deriving newtype  (NFData,Hashable)
-
-instance IsString KeySymbol where
-  fromString = coerce
 
 --------------------------------------------------
 

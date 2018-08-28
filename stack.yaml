@@ -1,0 +1,59 @@
+##################################################
+
+resolver: lts-12.7
+
+# resolver: nightly-2018-08-21
+# GHC 8.4.3
+
+packages:
+
+- xdotool
+
+- location:  ../kbd
+  extra-dep: true
+  subdirs:
+    - kbd
+
+- location:  ../spiros
+  extra-dep: true
+  subdirs:
+    - .
+
+- location:  ../enumerate
+  extra-dep: true
+  subdirs:
+    - enumerate
+    - enumerate-function
+
+##################################################
+
+# build:
+#   library-profiling: true
+#   haddock:           true
+#   copy-bins:         true
+#   keep-going:        true
+
+# error:
+#
+# $ stack build
+#     ...
+#     cannot find any of ["*.hi","*.p_hi","*.dyn_hi"]
+#     ExitFailure 1
+#
+# $ stack build  --ghc-options="-osuf p_o" --profile
+#
+
+##################################################
+
+nix:
+  enable: true
+
+  packages:
+    
+    - xdotool
+
+    - gmp
+    - libcxx
+    - zlib
+
+##################################################

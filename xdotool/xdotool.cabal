@@ -40,7 +40,6 @@ data-files:
 
 extra-source-files:
  LICENSE.txt
- .gitignore
  Makefile
 
 ----------------------------------------
@@ -185,6 +184,7 @@ library
    Xdotool
    Xdotool.Core
    Xdotool.Shell
+   Xdotool.KeySymbol
 
    Xdotool.Commands.Key
    Xdotool.Commands.Type

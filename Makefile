@@ -27,7 +27,7 @@ compile:
 
 #------------------------------------------------#
 repl:
-	cabal new-repl automation
+	cabal new-repl xdotool
 
 #------------------------------------------------#
 #install:
